@@ -32,8 +32,7 @@ cp .env.example .env
 docker compose up --build
 ```
 
-3) Open
-
+3) Open:
 - API: `http://localhost:8080/api/v1/dashboard/snapshot`
 - Docs: `http://localhost:8080/docs`
 - Health: `http://localhost:8080/health`
@@ -49,10 +48,66 @@ npm run prisma:generate
 npm run dev
 ```
 
-# Database migrations
+### Database migrations
 
 Create migration locally:
 
 ```bash
 npx prisma migrate dev --name init
 ```
+
+Deploy migrations in prod:
+
+```bash
+npm run prisma:migrate
+```
+
+### Seed the database 🌱
+
+This fills the DB with realistic baseline metrics and a latest snapshot:
+
+```bash
+npm run db:seed
+```
+
+---
+
+## API Overview 🔌
+
+Base: `/api/v1`
+
+- `GET /dashboard/snapshot`
+- `GET /timeseries/network-load?window=24h&step=2h`
+- `GET /timeseries/fees?window=24h&step=2h`
+- `GET /timeseries/economics?window=24h&step=2h`
+- `GET /timeseries/tx-composition?window=24h&step=2h`
+
+---
+
+## Timeseries Response Format
+
+Timeseries endpoints return a normalized shape:
+
+```json
+{
+  "window": "24h",
+  "step": "2h",
+  "labels": ["00:00", "02:00", "..."],
+  "series": [
+    { "key": "tx_per_block", "unit": "tx", "values": [2100, 2240, "..."] }
+  ]
+}
+```
+
+---
+
+## Design Notes 🧠
+
+- The ingestion pipeline is intentionally modular:
+  - `collectors/` — RPC clients + normalization + collection logic
+  - `jobs/` — polling loops + retention sweeps
+  - `services/` — read APIs for UI (snapshot + series)
+
+- The storage model is built for extension:
+  - additional series keys, dimensions, rollups
+  - future multi-network support (same schema, separate namespaces)
