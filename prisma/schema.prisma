@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model MetricPoint {
+  id        String   @id @default(cuid())
+  seriesKey String   @db.VarChar(120)
+  ts        DateTime @db.Timestamptz(6)
+  value     Float
+
+  // Optional dimension, e.g. "transfers" / "contract_calls"
+  dim       String?  @db.VarChar(80)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([seriesKey, ts])
+  @@index([seriesKey, dim, ts])
+  @@unique([seriesKey, ts, dim])
+}
+
+model Snapshot {
+  id        String   @id @default(cuid())
+  ts        DateTime @db.Timestamptz(6) @unique
+
+  // Network load
+  avgTxPerBlock   Float
+  avgBlockLoadPct Float
+  avgBlockTimeSec Float
+  peakLoad24hPct  Float
+  emptyBlocks24hPct Float
+  avgBlockSizeMb  Float
+
+  // Fee & cost
+  avgTxFeeMon     Float
+  medianTxFeeMon  Float
+  costPerBlockMon Float
+  feeLevelState   String @db.VarChar(32)
+
+  // Economics & execution
+  parallelEfficiencyPct Float
+  stateConflictRatePct  Float
+  effectiveTps          Float
+  feeFlowBurnPct        Float
+  feeFlowValidatorsPct  Float
+  feeFlowAdjustPct      Float
+
+  // Tx composition
+  simpleTransfersPct Float
+  contractCallsPct   Float
+  microTxPct         Float
+
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+}
