@@ -1,4 +1,6 @@
-# Monad Economic Dashboard Backend 📈
+# Monad Economic Dashboard 📈
+
+🔗 Dashboard: https://skyneticlabs.com/monad
 
 Production-grade backend service that powers the **Monad — Economic & Fee Efficiency Dashboard**.  
 It ingests on-chain signals (RPC sampling), builds network/fee/economics/usage analytics, stores time-series history, and serves a clean API for the dashboard UI.
